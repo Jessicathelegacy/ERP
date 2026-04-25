@@ -1,0 +1,578 @@
+@model PayrollBatchEditViewModel
+@{
+    ViewData["Title"] = "Edit Batch";
+    var months = Enumerable.Range(1, 12)
+        .Select(m => new { Value = m, Text = new DateTime(2000, m, 1).ToString("MMMM") });
+    bool isSubmitted  = Model.Batch.Status == PayrollBatchStatus.Submitted;
+    bool isProcessing = Model.Batch.Status == PayrollBatchStatus.Processing;
+    bool isLocked     = isSubmitted || isProcessing;
+    bool canSubmit    = Model.Batch.Status == PayrollBatchStatus.Draft || Model.Batch.Status == PayrollBatchStatus.Rejected;
+
+    // Status options visible in the dropdown (Processing uses dedicated buttons instead)
+    var allowedStatuses = new List<(PayrollBatchStatus Value, string Text)>();
+    switch (Model.Batch.Status)
+    {
+        case PayrollBatchStatus.Draft:
+        case PayrollBatchStatus.Rejected:
+            allowedStatuses.Add((PayrollBatchStatus.Draft,     "Draft"));
+            allowedStatuses.Add((PayrollBatchStatus.Cancelled, "Cancelled"));
+            break;
+        case PayrollBatchStatus.Cancelled:
+            allowedStatuses.Add((PayrollBatchStatus.Cancelled, "Cancelled"));
+            allowedStatuses.Add((PayrollBatchStatus.Draft,     "Draft"));
+            break;
+        default:
+            allowedStatuses.Add((Model.Batch.Status, Model.Batch.Status.ToString()));
+            break;
+    }
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (isSubmitted)
+{
+    <div class="alert alert-warning d-flex align-items-center gap-2 mb-3" role="alert">
+        <i class="bi bi-hourglass-split fs-5"></i>
+        <div>
+            <strong>Under Review</strong> — This batch has been submitted for approval and cannot be edited.
+            @if (Model.Batch.SubmittedAt.HasValue)
+            {
+                <span class="text-muted ms-1 small">Submitted @Model.Batch.SubmittedAt.Value.ToString("dd MMM yyyy HH:mm") UTC</span>
+            }
+        </div>
+    </div>
+}
+
+@if (isProcessing)
+{
+    <div class="alert alert-info d-flex align-items-center gap-2 mb-3" role="alert">
+        <i class="bi bi-gear-fill fs-5"></i>
+        <div>
+            <strong>Processing</strong> — This batch has been approved. Use <strong>Complete</strong> or <strong>Cancel Batch</strong> to finalise.
+        </div>
+    </div>
+}
+
+@if (Model.Batch.Status == PayrollBatchStatus.Rejected && !string.IsNullOrWhiteSpace(Model.Batch.RejectionReason))
+{
+    <div class="alert alert-danger d-flex align-items-start gap-2 mb-3" role="alert">
+        <i class="bi bi-x-octagon-fill fs-5 mt-1"></i>
+        <div>
+            <strong>Rejected</strong> — This batch was rejected by the approver. Please review the feedback below and resubmit.
+            <div class="mt-1 small fst-italic">"@Model.Batch.RejectionReason"</div>
+        </div>
+    </div>
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9 col-md-11">
+
+        <ul class="nav nav-tabs mb-0" id="batchTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab">
+                    <i class="bi bi-layers-fill me-1"></i>Batch Details
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="payrolls-tab" data-bs-toggle="tab" data-bs-target="#payrolls" type="button" role="tab">
+                    <i class="bi bi-receipt-cutoff me-1"></i>Payroll Records
+                    @if (Model.PayrollItems.Any())
+                    {
+                        <span class="badge bg-primary-subtle text-primary ms-1">@Model.PayrollItems.Count</span>
+                    }
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
+                    <i class="bi bi-clock-history me-1"></i>History
+                    @if (Model.Events.Any())
+                    {
+                        <span class="badge bg-secondary-subtle text-secondary ms-1">@Model.Events.Count</span>
+                    }
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+
+            @* Details Tab *@
+            <div class="tab-pane fade show active" id="details" role="tabpanel">
+                <div class="card shadow-sm border-top-0 rounded-top-0">
+                    <div class="card-body p-4">
+                        <fieldset disabled="@(isLocked ? "disabled" : null)">
+                        <form asp-action="Edit" asp-route-id="@Model.Batch.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" asp-for="Batch.Id" />
+                            <input type="hidden" asp-for="Batch.CreatedAt" />
+
+                            @* Period *@
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label asp-for="Batch.Year" class="form-label fw-semibold">Year <span class="text-danger">*</span></label>
+                                    <input asp-for="Batch.Year" id="Year" type="number" min="2000" max="2100" class="form-control" />
+                                    <span asp-validation-for="Batch.Year" class="text-danger small"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="Batch.Month" class="form-label fw-semibold">Month <span class="text-danger">*</span></label>
+                                    <select asp-for="Batch.Month" id="Month" class="form-select">
+                                        @foreach (var m in months)
+                                        {
+                                            <option value="@m.Value">@m.Text</option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="Batch.Month" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Batch.Description" class="form-label fw-semibold">Description</label>
+                                <input asp-for="Batch.Description" class="form-control" placeholder="e.g. January 2026 Monthly Payroll" />
+                                <span asp-validation-for="Batch.Description" class="text-danger small"></span>
+                            </div>
+
+                            @* Totals — read-only, recalculated on save *@
+                            <div class="card bg-light border-0 mb-3">
+                                <div class="card-body">
+                                    <p class="fw-semibold text-muted small text-uppercase mb-3">
+                                        <i class="bi bi-calculator me-1"></i>Batch Totals
+                                        <span class="text-muted fw-normal text-lowercase ms-1">(auto-calculated from payroll records)</span>
+                                    </p>
+                                    <div class="row g-3">
+                                        <div class="col-md-3 col-sm-6">
+                                            <div class="border rounded p-3 text-center bg-white">
+                                                <div class="text-muted small mb-1">Employees</div>
+                                                <div class="fw-bold fs-5">@Model.Batch.TotalEmployees</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6">
+                                            <div class="border rounded p-3 text-center bg-white">
+                                                <div class="text-muted small mb-1">Total Gross</div>
+                                                <div class="fw-bold fs-6">$@Model.Batch.TotalGrossSalary.ToString("N2")</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6">
+                                            <div class="border rounded p-3 text-center bg-white">
+                                                <div class="text-muted small mb-1">Total Deductions</div>
+                                                <div class="fw-bold fs-6 text-danger">$@Model.Batch.TotalDeductions.ToString("N2")</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6">
+                                            <div class="border rounded p-3 text-center bg-white border-primary">
+                                                <div class="text-muted small mb-1">Total Net</div>
+                                                <div class="fw-bold fs-5 text-primary">$@Model.Batch.TotalNetSalary.ToString("N2")</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" asp-for="Batch.TotalEmployees" />
+                            <input type="hidden" asp-for="Batch.TotalGrossSalary" />
+                            <input type="hidden" asp-for="Batch.TotalDeductions" />
+                            <input type="hidden" asp-for="Batch.TotalNetSalary" />
+
+                            @if (!isProcessing)
+                            {
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold">Status</label>
+                                    <select name="Batch.Status" class="form-select" style="max-width:220px">
+                                        @foreach (var opt in allowedStatuses)
+                                        {
+                                            <option value="@((int)opt.Value)" selected="@(Model.Batch.Status == opt.Value ? "selected" : null)">@opt.Text</option>
+                                        }
+                                    </select>
+                                </div>
+                            }
+
+                            @if (!isLocked)
+                            {
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="bi bi-check-lg me-1"></i>Save Changes
+                                    </button>
+                                    @if (canSubmit)
+                                    {
+                                        <button type="button" class="btn btn-warning px-4" data-bs-toggle="modal" data-bs-target="#submitModal">
+                                            <i class="bi bi-send-fill me-1"></i>Submit for Approval
+                                        </button>
+                                    }
+                                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                                        <i class="bi bi-x-lg me-1"></i>Cancel
+                                    </a>
+                                </div>
+                            }
+                        </form>
+                        </fieldset>
+                        @if (isSubmitted)
+                        {
+                            <div class="d-flex gap-2 mt-2">
+                                <button type="button" class="btn btn-warning px-4" data-bs-toggle="modal" data-bs-target="#recallModal">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i>Recall
+                                </button>
+                                <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                                    <i class="bi bi-arrow-left me-1"></i>Back to List
+                                </a>
+                            </div>
+                        }
+                        @if (isProcessing)
+                        {
+                            <div class="d-flex gap-2 mt-2">
+                                <button type="button" class="btn btn-success px-4" data-bs-toggle="modal" data-bs-target="#completeModal">
+                                    <i class="bi bi-check-all me-1"></i>Complete
+                                </button>
+                                <button type="button" class="btn btn-danger px-4" data-bs-toggle="modal" data-bs-target="#cancelBatchModal">
+                                    <i class="bi bi-slash-circle me-1"></i>Cancel Batch
+                                </button>
+                                <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                                    <i class="bi bi-arrow-left me-1"></i>Back to List
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            @* Payroll Records Tab *@
+            <div class="tab-pane fade" id="payrolls" role="tabpanel">
+                <div class="card shadow-sm border-top-0 rounded-top-0">
+                    @if (Model.PayrollItems.Any())
+                    {
+                        <form asp-action="UpdateDeductions" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="BatchId" value="@Model.Batch.Id" />
+
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0" id="deductionsTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-4" style="width:40px">#</th>
+                                            <th>Employee</th>
+                                            <th class="text-end">Basic</th>
+                                            <th class="text-end">Allowances</th>
+                                            <th class="text-end" style="width:150px">
+                                                OT Hours
+                                                @if (!isLocked) { <i class="bi bi-pencil-fill text-primary ms-1" style="font-size:.75rem"></i> }
+                                            </th>
+                                            <th class="text-end">OT Pay</th>
+                                            <th class="text-end">Gross</th>
+                                            <th class="text-end" style="width:160px">
+                                                Deductions
+                                                @if (!isLocked) { <i class="bi bi-pencil-fill text-primary ms-1" style="font-size:.75rem"></i> }
+                                            </th>
+                                            <th class="text-end">Net Salary</th>
+                                            <th class="text-center pe-4">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{ int row = 1; }
+                                        @for (int i = 0; i < Model.PayrollItems.Count; i++)
+                                        {
+                                            var p = Model.PayrollItems[i];
+                                            <tr>
+                                                <td class="ps-4 text-muted small">@row</td>
+                                                <td class="fw-semibold">@p.EmployeeName</td>
+                                                <td class="text-end small">@p.BasicSalary.ToString("N2")</td>
+                                                <td class="text-end small">@p.Allowances.ToString("N2")</td>
+                                                <td class="text-end">
+                                                    <input type="hidden" name="Items[@i].PayrollId" value="@p.Id" />
+                                                    <input type="hidden" name="Items[@i].OvertimeRatePerHour" value="@p.OvertimeRatePerHour.ToString("F2")" />
+                                                    @if (isLocked)
+                                                    {
+                                                        <span class="small">@p.OvertimeHours.ToString("F1") hrs</span>
+                                                        <input type="hidden" name="Items[@i].OvertimeHours" value="@p.OvertimeHours.ToString("F1")" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="input-group input-group-sm justify-content-end" style="max-width:140px;margin-left:auto">
+                                                            <input type="number" name="Items[@i].OvertimeHours"
+                                                                   class="form-control text-end ot-input"
+                                                                   step="0.5" min="0"
+                                                                   value="@p.OvertimeHours.ToString("F1")"
+                                                                   data-basic="@p.BasicSalary"
+                                                                   data-allowances="@p.Allowances"
+                                                                   data-rate="@p.OvertimeRatePerHour" />
+                                                            <span class="input-group-text text-muted">hrs</span>
+                                                        </div>
+                                                    }
+                                                </td>
+                                                <td class="text-end small ot-pay-cell">@p.OvertimePay.ToString("N2")</td>
+                                                <td class="text-end small gross-cell">@p.GrossSalary.ToString("N2")</td>
+                                                <td class="text-end">
+                                                    @if (isLocked)
+                                                    {
+                                                        <span class="small text-danger">@p.Deductions.ToString("N2")</span>
+                                                        <input type="hidden" name="Items[@i].Deductions" value="@p.Deductions.ToString("F2")" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="input-group input-group-sm justify-content-end" style="max-width:150px;margin-left:auto">
+                                                            <span class="input-group-text text-muted">$</span>
+                                                            <input type="number" name="Items[@i].Deductions"
+                                                                   class="form-control text-end deduction-input"
+                                                                   step="0.01" min="0"
+                                                                   value="@p.Deductions.ToString("F2")" />
+                                                        </div>
+                                                    }
+                                                </td>
+                                                <td class="text-end fw-semibold net-cell">@p.NetSalary.ToString("N2")</td>
+                                                <td class="text-center pe-4">
+                                                    @switch (p.Status)
+                                                    {
+                                                        case PayrollStatus.Paid:
+                                                            <span class="badge rounded-pill bg-success-subtle text-success px-3 py-2">
+                                                                <i class="bi bi-check-circle-fill me-1"></i>Paid
+                                                            </span>
+                                                            break;
+                                                        case PayrollStatus.Approved:
+                                                            <span class="badge rounded-pill bg-info-subtle text-info px-3 py-2">
+                                                                <i class="bi bi-patch-check-fill me-1"></i>Approved
+                                                            </span>
+                                                            break;
+                                                        default:
+                                                            <span class="badge rounded-pill bg-secondary-subtle text-secondary px-3 py-2">
+                                                                <i class="bi bi-pencil-fill me-1"></i>Draft
+                                                            </span>
+                                                            break;
+                                                    }
+                                                </td>
+                                            </tr>
+                                            row++;
+                                        }
+                                    </tbody>
+                                    <tfoot class="table-light fw-semibold">
+                                        <tr>
+                                            <td colspan="2" class="ps-4">Totals</td>
+                                            <td class="text-end">@Model.PayrollItems.Sum(p => p.BasicSalary).ToString("N2")</td>
+                                            <td class="text-end">@Model.PayrollItems.Sum(p => p.Allowances).ToString("N2")</td>
+                                            <td></td>
+                                            <td class="text-end" id="totalOtPay">@Model.PayrollItems.Sum(p => p.OvertimePay).ToString("N2")</td>
+                                            <td class="text-end" id="totalGross">@Model.PayrollItems.Sum(p => p.GrossSalary).ToString("N2")</td>
+                                            <td class="text-end text-danger" id="totalDeductions">@Model.PayrollItems.Sum(p => p.Deductions).ToString("N2")</td>
+                                            <td class="text-end text-primary" id="totalNet">@Model.PayrollItems.Sum(p => p.NetSalary).ToString("N2")</td>
+                                            <td class="pe-4"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+
+                            @if (!isLocked)
+                            {
+                                <div class="px-4 py-3 border-top d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="bi bi-check-lg me-1"></i>Save Payroll Records
+                                    </button>
+                                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                                        <i class="bi bi-x-lg me-1"></i>Cancel
+                                    </a>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="px-4 py-3 border-top">
+                                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                                        <i class="bi bi-arrow-left me-1"></i>Back to List
+                                    </a>
+                                </div>
+                            }
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="card-body">
+                            <div class="text-center py-5">
+                                <div class="empty-state-icon mx-auto mb-3">
+                                    <i class="bi bi-receipt-cutoff"></i>
+                                </div>
+                                <h6 class="fw-semibold text-dark mb-1">No payroll records linked</h6>
+                                <p class="text-muted small mb-0">Payroll records assigned to this batch will appear here.</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @* History Tab *@
+            <div class="tab-pane fade" id="history" role="tabpanel">
+                <div class="card shadow-sm border-top-0 rounded-top-0">
+                    <div class="card-body p-4">
+                        @if (Model.Events.Any())
+                        {
+                            <ul class="list-unstyled mb-0">
+                                @foreach (var ev in Model.Events)
+                                {
+                                    var icon = ev.EventType switch
+                                    {
+                                        "Submitted"  => "bi-send-fill",
+                                        "Recalled"   => "bi-arrow-counterclockwise",
+                                        "Approved"   => "bi-check-circle-fill",
+                                        "Rejected"   => "bi-x-circle-fill",
+                                        "Completed"  => "bi-check-all",
+                                        "Cancelled"  => "bi-slash-circle-fill",
+                                        "Updated"    => "bi-pencil-fill",
+                                        _            => "bi-file-earmark-plus"
+                                    };
+                                    var color = ev.EventType switch
+                                    {
+                                        "Submitted"  => "primary",
+                                        "Recalled"   => "warning",
+                                        "Approved"   => "success",
+                                        "Rejected"   => "danger",
+                                        "Completed"  => "info",
+                                        "Cancelled"  => "secondary",
+                                        "Updated"    => "dark",
+                                        _            => "secondary"
+                                    };
+                                    <li class="d-flex gap-3 mb-4">
+                                        <div class="flex-shrink-0 pt-1">
+                                            <span class="badge rounded-circle p-2 bg-@(color)-subtle text-@color"
+                                                  style="width:2.25rem;height:2.25rem;display:inline-flex;align-items:center;justify-content:center">
+                                                <i class="bi @icon"></i>
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">@ev.EventType</div>
+                                            <div class="text-muted small">
+                                                @(ev.AdminUser?.Username ?? "System")
+                                                &middot;
+                                                @ev.OccurredAt.ToString("dd MMM yyyy HH:mm") UTC
+                                            </div>
+                                            @if (!string.IsNullOrWhiteSpace(ev.Note))
+                                            {
+                                                <div class="mt-1 small fst-italic text-danger">"@ev.Note"</div>
+                                            }
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <div class="text-center py-5">
+                                <i class="bi bi-clock-history fs-1 text-muted"></i>
+                                <p class="text-muted mt-2 mb-0">No history recorded yet.</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@* Submit for Approval confirmation modal *@
+@if (canSubmit)
+{
+    <div class="modal fade" id="submitModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-send-fill me-2 text-warning"></i>Submit for Approval</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>You are about to submit the <strong>@(new DateTime(Model.Batch.Year, Model.Batch.Month, 1).ToString("MMMM yyyy"))</strong> payroll batch for approval.</p>
+                    <p class="text-muted small mb-0">Once submitted, the batch will be locked from editing until it is approved or rejected by an approver.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form asp-action="Submit" asp-route-id="@Model.Batch.Id" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-warning px-4">
+                            <i class="bi bi-send-fill me-1"></i>Submit for Approval
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (isSubmitted)
+{
+    <div class="modal fade" id="recallModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-arrow-counterclockwise me-2 text-warning"></i>Recall Batch</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>You are about to recall the <strong>@(new DateTime(Model.Batch.Year, Model.Batch.Month, 1).ToString("MMMM yyyy"))</strong> payroll batch.</p>
+                    <p class="text-muted small mb-0">The batch will be returned to <strong>Draft</strong> status and can be edited and resubmitted.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form asp-action="Recall" asp-route-id="@Model.Batch.Id" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-warning px-4">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i>Recall
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (isProcessing)
+{
+    <div class="modal fade" id="completeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-check-all me-2 text-success"></i>Complete Batch</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>You are about to mark the <strong>@(new DateTime(Model.Batch.Year, Model.Batch.Month, 1).ToString("MMMM yyyy"))</strong> payroll batch as <strong>Completed</strong>.</p>
+                    <p class="text-muted small mb-0">All payroll records will be marked as <strong>Paid</strong>. This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form asp-action="Complete" asp-route-id="@Model.Batch.Id" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="bi bi-check-all me-1"></i>Complete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="cancelBatchModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-slash-circle me-2 text-danger"></i>Cancel Batch</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>You are about to <strong>cancel</strong> the <strong>@(new DateTime(Model.Batch.Year, Model.Batch.Month, 1).ToString("MMMM yyyy"))</strong> payroll batch.</p>
+                    <p class="text-muted small mb-0">The batch will be marked as <strong>Cancelled</strong> and payroll records will return to Draft status.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Back</button>
+                    <form asp-action="CancelBatch" asp-route-id="@Model.Batch.Id" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger px-4">
+                            <i class="bi bi-slash-circle me-1"></i>Cancel Batch
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <input type="hidden" id="activeTab" value="@(TempData["ActiveTab"] ?? "")" />
+    <script src="~/js/payroll-batch-edit.js"></script>
+}

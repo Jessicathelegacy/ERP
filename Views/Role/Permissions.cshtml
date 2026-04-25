@@ -1,0 +1,53 @@
+@using Payroll.Models
+@model Role
+@{
+    ViewData["Title"] = $"Permissions — {Model.Name}";
+    var granted = ViewBag.Granted as HashSet<string> ?? [];
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-shield-check me-2 text-primary"></i>
+                    <span class="fw-semibold">Module Permissions</span>
+                </div>
+                <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2 fw-semibold">
+                    <i class="bi bi-tag-fill me-1"></i>@Model.Name
+                </span>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-muted small mb-4">Select the modules this role is allowed to access.</p>
+                <form asp-action="Permissions" asp-route-id="@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="border rounded-3 p-3 bg-light mb-4">
+                        @foreach (var (key, displayName, icon) in Modules.All)
+                        {
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox"
+                                       name="modules" value="@key"
+                                       id="mod_@key"
+                                       @(granted.Contains(key) ? "checked" : "") />
+                                <label class="form-check-label" for="mod_@key">
+                                    <i class="bi @icon me-1 text-primary"></i>
+                                    <span class="fw-semibold">@displayName</span>
+                                </label>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-lg me-1"></i>Save Permissions
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-x-lg me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

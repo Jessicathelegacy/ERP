@@ -1,0 +1,282 @@
+@model DashboardViewModel
+@using Payroll.Models
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["PageTitle"] = "Dashboard";
+    ViewData["PageSubtitle"] = "Welcome to Payroll System";
+}
+
+@section PageActions {
+    <a asp-action="UserGuide" class="btn btn-outline-secondary btn-sm px-3">
+        <i class="bi bi-journal-text me-1"></i>User Guide
+    </a>
+}
+
+@* ── Summary stat cards ─────────────────────────────────────────────── *@
+@{
+    bool anyStatCard = Model.Can(Modules.Employees) || Model.Can(Modules.Payroll) ||
+                       Model.Can(Modules.BatchPayroll) || Model.Can(Modules.BatchPayrollApproval);
+}
+@if (anyStatCard)
+{
+    <div class="row g-3 mb-4">
+
+        @if (Model.Can(Modules.Employees))
+        {
+            <div class="col-12 col-sm-6 col-xl">
+                <a asp-controller="Employee" asp-action="Index" asp-route-status="active" class="text-decoration-none">
+                    <div class="card stat-card h-100 border-0 shadow-sm">
+                        <div class="card-body d-flex align-items-center gap-3 px-4 py-3">
+                            <div class="stat-icon" style="background:linear-gradient(135deg,#4361ee,#3a0ca3)">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value">@Model.ActiveEmployees</div>
+                                <div class="stat-label">Active Employees</div>
+                                <div class="stat-sub">@Model.TotalPaymentSchemes scheme@(Model.TotalPaymentSchemes != 1 ? "s" : "") active</div>
+                            </div>
+                        </div>
+                        <div class="stat-accent" style="background:#4361ee"></div>
+                    </div>
+                </a>
+            </div>
+        }
+
+        @if (Model.Can(Modules.Payroll))
+        {
+            <div class="col-12 col-sm-6 col-xl">
+                <a asp-controller="Payroll" asp-action="Index"
+                   asp-route-year="@DateTime.Today.Year" asp-route-month="@DateTime.Today.Month"
+                   class="text-decoration-none">
+                    <div class="card stat-card h-100 border-0 shadow-sm">
+                        <div class="card-body d-flex align-items-center gap-3 px-4 py-3">
+                            <div class="stat-icon" style="background:linear-gradient(135deg,#198754,#14532d)">
+                                <i class="bi bi-cash-coin"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value">$@Model.CurrentMonthNetPayout.ToString("N0")</div>
+                                <div class="stat-label">Net Payout</div>
+                                <div class="stat-sub">@Model.CurrentMonthName</div>
+                            </div>
+                        </div>
+                        <div class="stat-accent" style="background:#198754"></div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl">
+                <a asp-controller="Payroll" asp-action="Index" asp-route-status="draft" class="text-decoration-none">
+                    <div class="card stat-card h-100 border-0 shadow-sm">
+                        <div class="card-body d-flex align-items-center gap-3 px-4 py-3">
+                            <div class="stat-icon" style="background:linear-gradient(135deg,#0dcaf0,#0891b2)">
+                                <i class="bi bi-receipt-cutoff"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value">@Model.DraftPayrolls</div>
+                                <div class="stat-label">Draft Payrolls</div>
+                                <div class="stat-sub">Awaiting approval</div>
+                            </div>
+                        </div>
+                        <div class="stat-accent" style="background:#0dcaf0"></div>
+                    </div>
+                </a>
+            </div>
+        }
+
+        @if (Model.Can(Modules.BatchPayroll))
+        {
+            <div class="col-12 col-sm-6 col-xl">
+                <a asp-controller="PayrollBatch" asp-action="Index" asp-route-status="pending" class="text-decoration-none">
+                    <div class="card stat-card h-100 border-0 shadow-sm">
+                        <div class="card-body d-flex align-items-center gap-3 px-4 py-3">
+                            <div class="stat-icon" style="background:linear-gradient(135deg,#fd7e14,#c2410c)">
+                                <i class="bi bi-layers-fill"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value">@Model.PendingBatches</div>
+                                <div class="stat-label">Pending Batches</div>
+                                <div class="stat-sub">
+                                    @if (Model.LatestBatchPeriod != null)
+                                    {
+                                        <span>Latest: @Model.LatestBatchPeriod</span>
+                                    }
+                                    else
+                                    {
+                                        <span>No batches yet</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-accent" style="background:#fd7e14"></div>
+                    </div>
+                </a>
+            </div>
+        }
+
+        @if (Model.Can(Modules.BatchPayrollApproval))
+        {
+            <div class="col-12 col-sm-6 col-xl">
+                <a asp-controller="PayrollBatchApproval" asp-action="Index" class="text-decoration-none">
+                    <div class="card stat-card h-100 border-0 shadow-sm">
+                        <div class="card-body d-flex align-items-center gap-3 px-4 py-3">
+                            <div class="stat-icon" style="background:linear-gradient(135deg,#f59e0b,#92400e)">
+                                <i class="bi bi-patch-check-fill"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value">@Model.SubmittedBatches</div>
+                                <div class="stat-label">Awaiting Approval</div>
+                                <div class="stat-sub">
+                                    @if (Model.SubmittedBatches > 0)
+                                    {
+                                        <span class="text-warning fw-semibold">Requires your review</span>
+                                    }
+                                    else
+                                    {
+                                        <span>No pending reviews</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-accent" style="background:#f59e0b"></div>
+                    </div>
+                </a>
+            </div>
+        }
+
+    </div>
+}
+
+@* ── Payroll Domain ───────────────────────────────────────────────────── *@
+@{
+    bool anyPayroll = Model.Can(Modules.PaymentSchemes) || Model.Can(Modules.Employees) ||
+                      Model.Can(Modules.Payroll)        || Model.Can(Modules.BatchPayroll);
+}
+@if (anyPayroll)
+{
+    <div class="mb-4">
+        <p class="text-muted small fw-semibold text-uppercase mb-3" style="letter-spacing:1px">
+            <i class="bi bi-receipt-cutoff me-1"></i>Payroll
+        </p>
+        <div class="row g-3">
+
+            @if (Model.Can(Modules.PaymentSchemes))
+            {
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <a asp-controller="PaymentScheme" asp-action="Index" class="text-decoration-none">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body d-flex flex-column align-items-center justify-content-center py-4">
+                                <div class="dashboard-icon-wrap mb-3" style="background:linear-gradient(135deg,#4361ee,#3a0ca3)">
+                                    <i class="bi bi-cash-stack"></i>
+                                </div>
+                                <h6 class="dashboard-card-title">Payment Schemes</h6>
+                                <p class="dashboard-card-sub text-muted mb-0">Manage salary structures</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+
+            @if (Model.Can(Modules.Employees))
+            {
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <a asp-controller="Employee" asp-action="Index" class="text-decoration-none">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body d-flex flex-column align-items-center justify-content-center py-4">
+                                <div class="dashboard-icon-wrap mb-3" style="background:linear-gradient(135deg,#0dcaf0,#0891b2)">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+                                <h6 class="dashboard-card-title">Employees</h6>
+                                <p class="dashboard-card-sub text-muted mb-0">Manage employee records</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+
+            @if (Model.Can(Modules.Payroll))
+            {
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <a asp-controller="Payroll" asp-action="Index" class="text-decoration-none">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body d-flex flex-column align-items-center justify-content-center py-4">
+                                <div class="dashboard-icon-wrap mb-3" style="background:linear-gradient(135deg,#198754,#14532d)">
+                                    <i class="bi bi-receipt-cutoff"></i>
+                                </div>
+                                <h6 class="dashboard-card-title">Payroll Records</h6>
+                                <p class="dashboard-card-sub text-muted mb-0">Process individual payroll</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+
+            @if (Model.Can(Modules.BatchPayroll))
+            {
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <a asp-controller="PayrollBatch" asp-action="Index" class="text-decoration-none">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body d-flex flex-column align-items-center justify-content-center py-4">
+                                <div class="dashboard-icon-wrap mb-3" style="background:linear-gradient(135deg,#fd7e14,#c2410c)">
+                                    <i class="bi bi-layers-fill"></i>
+                                </div>
+                                <h6 class="dashboard-card-title">Batch Payroll</h6>
+                                <p class="dashboard-card-sub text-muted mb-0">Process payroll by month</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+
+        </div>
+    </div>
+}
+
+@* ── Administration Domain ────────────────────────────────────────────── *@
+@{
+    bool anyAdmin = Model.Can(Modules.AdminUsers) || Model.Can(Modules.Roles);
+}
+@if (anyAdmin)
+{
+    <div>
+        <p class="text-muted small fw-semibold text-uppercase mb-3" style="letter-spacing:1px">
+            <i class="bi bi-shield-lock-fill me-1"></i>Administration
+        </p>
+        <div class="row g-3">
+
+            @if (Model.Can(Modules.AdminUsers))
+            {
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <a asp-controller="AdminUser" asp-action="Index" class="text-decoration-none">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body d-flex flex-column align-items-center justify-content-center py-4">
+                                <div class="dashboard-icon-wrap mb-3" style="background:linear-gradient(135deg,#6f42c1,#4a0080)">
+                                    <i class="bi bi-shield-lock-fill"></i>
+                                </div>
+                                <h6 class="dashboard-card-title">Admin Users</h6>
+                                <p class="dashboard-card-sub text-muted mb-0">Manage administrator accounts</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+
+            @if (Model.Can(Modules.Roles))
+            {
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <a asp-controller="Role" asp-action="Index" class="text-decoration-none">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body d-flex flex-column align-items-center justify-content-center py-4">
+                                <div class="dashboard-icon-wrap mb-3" style="background:linear-gradient(135deg,#20c997,#0d6e4f)">
+                                    <i class="bi bi-tags-fill"></i>
+                                </div>
+                                <h6 class="dashboard-card-title">Roles</h6>
+                                <p class="dashboard-card-sub text-muted mb-0">Manage administrator roles</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+
+        </div>
+    </div>
+}

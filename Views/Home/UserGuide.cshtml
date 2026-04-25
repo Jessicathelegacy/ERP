@@ -1,0 +1,627 @@
+@{
+    ViewData["Title"] = "User Guide";
+}
+
+@section PageActions {
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm px-3">
+        <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+    </a>
+}
+
+<div class="row g-4">
+
+    @* Quick-nav sidebar *@
+    <div class="col-lg-3 d-none d-lg-block">
+        <div class="card shadow-sm border-0 sticky-top" style="top:1.5rem">
+            <div class="card-body p-3">
+                <p class="text-muted small fw-semibold text-uppercase mb-2" style="letter-spacing:1px">
+                    <i class="bi bi-list-ul me-1"></i>Contents
+                </p>
+                <nav class="nav flex-column gap-1">
+                    <a class="nav-link py-1 px-2 rounded small" href="#overview">Overview</a>
+                    <div class="text-muted small fw-semibold px-2 pt-2 pb-1" style="letter-spacing:.5px">
+                        <i class="bi bi-receipt-cutoff me-1"></i>Payroll
+                    </div>
+                    <a class="nav-link py-1 px-2 rounded small ps-3" href="#payment-schemes">Payment Schemes</a>
+                    <a class="nav-link py-1 px-2 rounded small ps-3" href="#employees">Employees</a>
+                    <a class="nav-link py-1 px-2 rounded small ps-3" href="#payroll">Payroll Records</a>
+                    <a class="nav-link py-1 px-2 rounded small ps-3" href="#batch-payroll">Batch Payroll</a>
+                    <a class="nav-link py-1 px-2 rounded small ps-3" href="#batch-payroll-approval">Batch Payroll Approval</a>
+                    <a class="nav-link py-1 px-2 rounded small ps-3" href="#payslip">Payslips</a>
+                    <div class="text-muted small fw-semibold px-2 pt-2 pb-1" style="letter-spacing:.5px">
+                        <i class="bi bi-shield-lock-fill me-1"></i>Administration
+                    </div>
+                    <a class="nav-link py-1 px-2 rounded small ps-3" href="#admin-users">Admin Users</a>
+                    <a class="nav-link py-1 px-2 rounded small ps-3" href="#roles">Roles &amp; Permissions</a>
+                    <div class="text-muted small fw-semibold px-2 pt-2 pb-1" style="letter-spacing:.5px">
+                        <i class="bi bi-info-circle me-1"></i>Reference
+                    </div>
+                    <a class="nav-link py-1 px-2 rounded small ps-3" href="#dashboard">Dashboard</a>
+                    <a class="nav-link py-1 px-2 rounded small ps-3" href="#workflow">Recommended Workflow</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    @* Main content *@
+    <div class="col-lg-9">
+
+        @* Overview *@
+        <section id="overview" class="mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <div class="guide-section-icon" style="background:linear-gradient(135deg,#4361ee,#3a0ca3)">
+                        <i class="bi bi-info-circle-fill"></i>
+                    </div>
+                    <h6 class="mb-0 fw-bold">Overview</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">The <strong>Payroll System</strong> manages employee salary processing end-to-end. It is organised into two domains:</p>
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <div class="p-3 rounded-3 border h-100">
+                                <p class="fw-semibold mb-2"><i class="bi bi-receipt-cutoff text-success me-1"></i>Payroll Domain</p>
+                                <ul class="mb-0 small text-muted ps-3">
+                                    <li><strong>Payment Schemes</strong> — salary templates</li>
+                                    <li><strong>Employees</strong> — employee profiles</li>
+                                    <li><strong>Payroll Records</strong> — individual pay records</li>
+                                    <li><strong>Batch Payroll</strong> — monthly bulk processing</li>
+                                    <li><strong>Payslips</strong> — printable pay summaries</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="p-3 rounded-3 border h-100">
+                                <p class="fw-semibold mb-2"><i class="bi bi-shield-lock-fill text-primary me-1"></i>Administration Domain</p>
+                                <ul class="mb-0 small text-muted ps-3">
+                                    <li><strong>Admin Users</strong> — administrator accounts</li>
+                                    <li><strong>Roles</strong> — role definitions</li>
+                                    <li><strong>Permissions</strong> — which modules each role can access</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-info d-flex gap-2 mb-0 py-2">
+                        <i class="bi bi-shield-check mt-1 flex-shrink-0"></i>
+                        <div>Access to each module is controlled by <strong>Role-Based Access Control (RBAC)</strong>. An admin user can only see and use the modules their role permits. The dashboard and navigation automatically hide anything they cannot access.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        @* ── PAYROLL DOMAIN ── *@
+        <div class="d-flex align-items-center gap-2 mb-3 mt-2">
+            <div class="guide-section-icon" style="background:linear-gradient(135deg,#198754,#14532d)">
+                <i class="bi bi-receipt-cutoff"></i>
+            </div>
+            <h6 class="mb-0 fw-bold text-uppercase" style="letter-spacing:1px">Payroll Domain</h6>
+        </div>
+
+        @* Payment Schemes *@
+        <section id="payment-schemes" class="mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <div class="guide-section-icon" style="background:linear-gradient(135deg,#4361ee,#3a0ca3)">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <h6 class="mb-0 fw-bold">Payment Schemes</h6>
+                </div>
+                <div class="card-body">
+                    <p>A <strong>Payment Scheme</strong> is a salary template. Each employee is linked to exactly one scheme.</p>
+                    <h6 class="fw-semibold mt-3 mb-2">Fields</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th>Field</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="fw-semibold">Name</td><td>A descriptive label (e.g. "Senior Engineer").</td></tr>
+                                <tr><td class="fw-semibold">Basic Salary</td><td>Fixed monthly base pay.</td></tr>
+                                <tr><td class="fw-semibold">Overtime Rate / Hr</td><td>Hourly rate applied when overtime hours are entered.</td></tr>
+                                <tr><td class="fw-semibold">Allowance</td><td>Fixed monthly allowance added on top of basic salary.</td></tr>
+                                <tr><td class="fw-semibold">Active</td><td>Inactive schemes are hidden from employee assignment dropdowns.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="alert alert-info d-flex gap-2 mt-3 mb-0 py-2">
+                        <i class="bi bi-lightbulb-fill mt-1 flex-shrink-0"></i>
+                        <div>Create all your payment schemes <strong>before</strong> adding employees.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        @* Employees *@
+        <section id="employees" class="mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <div class="guide-section-icon" style="background:linear-gradient(135deg,#0dcaf0,#0891b2)">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <h6 class="mb-0 fw-bold">Employees</h6>
+                </div>
+                <div class="card-body">
+                    <p>The <strong>Employees</strong> module manages employee profiles. Each employee must be assigned a payment scheme.</p>
+                    <h6 class="fw-semibold mt-3 mb-2">Fields</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th>Field</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="fw-semibold">Full Name</td><td>Display name used across all payroll records.</td></tr>
+                                <tr><td class="fw-semibold">Email</td><td>Must be unique. Shown on payslips.</td></tr>
+                                <tr><td class="fw-semibold">Phone</td><td>Optional contact number shown on payslips.</td></tr>
+                                <tr><td class="fw-semibold">Payment Scheme</td><td>Determines default basic salary, OT rate, and allowances.</td></tr>
+                                <tr><td class="fw-semibold">Join Date</td><td>Reference date shown on payslips.</td></tr>
+                                <tr><td class="fw-semibold">Active</td><td>Inactive employees are excluded from batch payroll generation.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <h6 class="fw-semibold mt-3 mb-2">Payroll History Tab</h6>
+                    <p class="mb-0">The <strong>Edit</strong> page has a <strong>Payroll History</strong> tab showing every pay record for that employee. You can print individual payslips directly from this tab.</p>
+                </div>
+            </div>
+        </section>
+
+        @* Payroll *@
+        <section id="payroll" class="mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <div class="guide-section-icon" style="background:linear-gradient(135deg,#198754,#14532d)">
+                        <i class="bi bi-receipt-cutoff"></i>
+                    </div>
+                    <h6 class="mb-0 fw-bold">Payroll Records</h6>
+                </div>
+                <div class="card-body">
+                    <p>Create or adjust individual payroll records for any employee and pay period. Values are auto-filled from the employee's payment scheme and can be overridden.</p>
+                    <h6 class="fw-semibold mt-3 mb-2">How calculations work</h6>
+                    <div class="p-3 rounded bg-light font-monospace small mb-3">
+                        <div>OT Pay &nbsp;&nbsp;&nbsp;= OT Hours × OT Rate per Hour</div>
+                        <div>Gross &nbsp;&nbsp;&nbsp;&nbsp;= Basic Salary + OT Pay + Allowances</div>
+                        <div>Net Salary = Gross − Deductions</div>
+                    </div>
+                    <h6 class="fw-semibold mb-2">Status meanings</h6>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <span class="badge rounded-pill bg-secondary-subtle text-secondary px-3 py-2"><i class="bi bi-pencil-fill me-1"></i>Draft — created, not yet approved</span>
+                        <span class="badge rounded-pill bg-info-subtle text-info px-3 py-2"><i class="bi bi-patch-check-fill me-1"></i>Approved — reviewed and confirmed</span>
+                        <span class="badge rounded-pill bg-success-subtle text-success px-3 py-2"><i class="bi bi-check-circle-fill me-1"></i>Paid — salary has been disbursed</span>
+                    </div>
+                    <div class="alert alert-info d-flex gap-2 mb-0 py-2">
+                        <i class="bi bi-lightbulb-fill mt-1 flex-shrink-0"></i>
+                        <div>For bulk processing, use <strong>Batch Payroll</strong>. It auto-creates one record per active employee and lets you adjust OT and deductions in one form.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        @* Batch Payroll *@
+        <section id="batch-payroll" class="mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <div class="guide-section-icon" style="background:linear-gradient(135deg,#fd7e14,#c2410c)">
+                        <i class="bi bi-layers-fill"></i>
+                    </div>
+                    <h6 class="mb-0 fw-bold">Batch Payroll</h6>
+                </div>
+                <div class="card-body">
+                    <p>A <strong>Payroll Batch</strong> groups all employee pay records for a given month. Creating a batch automatically generates one payroll record per active employee. Status is controlled entirely by <strong>workflow action buttons</strong> — there is no manual status dropdown.</p>
+
+                    <h6 class="fw-semibold mt-3 mb-2">Creating a batch</h6>
+                    <p>Click <strong>New Batch</strong>, choose the year and month, add an optional description, then choose:</p>
+                    <div class="table-responsive mb-3">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th>Button</th><th>What it does</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><strong>Draft</strong></td><td>Saves the batch as Draft so you can adjust OT and deductions before submitting.</td></tr>
+                                <tr><td><strong>Submit</strong></td><td>Saves and immediately sends the batch for approval. The batch is locked until an approver acts.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h6 class="fw-semibold mb-2">Adjusting OT and deductions</h6>
+                    <p class="mb-3">Open a <strong>Draft</strong> batch and go to the <strong>Payroll Records</strong> tab. Enter overtime hours and deductions per employee, then click <strong>Save Payroll Records</strong>. Totals recalculate automatically. This tab becomes read-only once the batch is Submitted or in Processing.</p>
+
+                    <h6 class="fw-semibold mb-2">Workflow actions</h6>
+                    <p>The buttons shown on the Edit page depend on the current status:</p>
+                    <div class="table-responsive mb-3">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th>Status</th><th>Available actions</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge rounded-pill bg-secondary-subtle text-secondary px-2">Draft</span></td>
+                                    <td>Save Changes &nbsp;·&nbsp; Submit for Approval</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge rounded-pill bg-danger-subtle text-danger px-2">Rejected</span></td>
+                                    <td>Save Changes &nbsp;·&nbsp; Submit for Approval (after corrections)</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge rounded-pill bg-warning-subtle text-warning px-2">Submitted</span></td>
+                                    <td><strong>Recall</strong> — withdraws the batch back to Draft</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge rounded-pill bg-info-subtle text-info px-2">Processing</span></td>
+                                    <td><strong>Complete</strong> (marks payrolls Paid) &nbsp;·&nbsp; <strong>Cancel Batch</strong> (reverts payrolls to Draft)</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge rounded-pill bg-success-subtle text-success px-2">Completed</span></td>
+                                    <td>— final state, read-only</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge rounded-pill bg-secondary-subtle text-secondary px-2">Cancelled</span></td>
+                                    <td>— final state, read-only</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h6 class="fw-semibold mb-2">Full status flow</h6>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                        <span class="badge rounded-pill bg-secondary-subtle text-secondary px-3 py-2">Draft</span>
+                        <i class="bi bi-arrow-right text-muted small"></i>
+                        <span class="badge rounded-pill bg-warning-subtle text-warning px-3 py-2">Submitted</span>
+                        <i class="bi bi-arrow-right text-muted small"></i>
+                        <span class="badge rounded-pill bg-info-subtle text-info px-3 py-2">Processing</span>
+                        <i class="bi bi-arrow-right text-muted small"></i>
+                        <span class="badge rounded-pill bg-success-subtle text-success px-3 py-2">Completed</span>
+                    </div>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-1 ps-2">
+                        <span class="text-muted small"><i class="bi bi-arrow-return-right me-1"></i>Rejected</span>
+                        <span class="text-muted small">→ fix and resubmit</span>
+                    </div>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-3 ps-2">
+                        <span class="text-muted small"><i class="bi bi-arrow-return-right me-1"></i>Recalled</span>
+                        <span class="text-muted small">→ returns to Draft for editing</span>
+                    </div>
+
+                    <div class="table-responsive mb-3">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th>Batch Status</th><th>Payroll Records set to</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Draft / Submitted / Rejected</td><td>Draft</td></tr>
+                                <tr><td>Processing</td><td>Approved</td></tr>
+                                <tr><td>Completed</td><td>Paid</td></tr>
+                                <tr><td>Cancelled</td><td>Draft</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h6 class="fw-semibold mb-2">History tab</h6>
+                    <p class="mb-3">Every batch has a <strong>History</strong> tab recording each workflow action — who performed it and when (UTC). Events tracked: Drafted, Submitted, Recalled, Approved, Rejected (with reason), Completed, and Cancelled.</p>
+
+                    <div class="alert alert-warning d-flex gap-2 mb-0 py-2">
+                        <i class="bi bi-shield-exclamation mt-1 flex-shrink-0"></i>
+                        <div><strong>Self-approval is not permitted.</strong> The user who submitted a batch cannot approve or reject it. A different authorised approver must review it.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        @* Batch Payroll Approval *@
+        <section id="batch-payroll-approval" class="mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <div class="guide-section-icon" style="background:linear-gradient(135deg,#f59e0b,#b45309)">
+                        <i class="bi bi-check2-square"></i>
+                    </div>
+                    <h6 class="mb-0 fw-bold">Batch Payroll Approval</h6>
+                </div>
+                <div class="card-body">
+                    <p>The <strong>Batch Payroll Approval</strong> module is for authorised approvers. It lists all batches currently in <strong>Submitted</strong> status that are awaiting a decision.</p>
+
+                    <h6 class="fw-semibold mt-3 mb-2">Making a decision</h6>
+                    <p>Click <strong>Review</strong> on any submitted batch. The review page shows the batch totals, the submitter's name and submission time, and a full payroll records breakdown. Two decisions are available:</p>
+                    <div class="table-responsive mb-3">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th>Decision</th><th>Result</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Approve</strong></td>
+                                    <td>Moves the batch to <strong>Processing</strong> and sets all payroll records to <em>Approved</em>. A notification is sent to the submitter.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Reject</strong></td>
+                                    <td>Returns the batch to <strong>Rejected</strong> status. A mandatory reason must be provided. A notification is sent to the submitter with the reason so they can correct and resubmit.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="alert alert-warning d-flex gap-2 mb-0 py-2">
+                        <i class="bi bi-shield-exclamation mt-1 flex-shrink-0"></i>
+                        <div><strong>Self-approval is blocked.</strong> If you submitted the batch yourself, the Approve and Reject actions are hidden and a warning is shown. Another approver with this module access must make the decision.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        @* Payslip *@
+        <section id="payslip" class="mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <div class="guide-section-icon" style="background:linear-gradient(135deg,#6f42c1,#4a0072)">
+                        <i class="bi bi-printer-fill"></i>
+                    </div>
+                    <h6 class="mb-0 fw-bold">Payslips</h6>
+                </div>
+                <div class="card-body">
+                    <p>A <strong>Payslip</strong> is a printable summary of one employee's pay for a specific period. Open a payslip from three places:</p>
+                    <ul class="mb-3">
+                        <li>The <strong>Payroll Records list</strong> — click the <i class="bi bi-printer-fill"></i> icon on any row.</li>
+                        <li>The <strong>Payroll Edit</strong> page — print button in the action bar.</li>
+                        <li>The <strong>Employee Edit → Payroll History</strong> tab — print button on each row.</li>
+                    </ul>
+                    <p class="mb-0">The payslip opens in a new tab and triggers the browser's print dialog automatically. It shows employee details, the full earnings and deductions breakdown, and the payslip reference number.</p>
+                </div>
+            </div>
+        </section>
+
+        @* ── ADMINISTRATION DOMAIN ── *@
+        <div class="d-flex align-items-center gap-2 mb-3 mt-2">
+            <div class="guide-section-icon" style="background:linear-gradient(135deg,#6f42c1,#4a0080)">
+                <i class="bi bi-shield-lock-fill"></i>
+            </div>
+            <h6 class="mb-0 fw-bold text-uppercase" style="letter-spacing:1px">Administration Domain</h6>
+        </div>
+
+        @* Admin Users *@
+        <section id="admin-users" class="mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <div class="guide-section-icon" style="background:linear-gradient(135deg,#6f42c1,#4a0080)">
+                        <i class="bi bi-person-badge-fill"></i>
+                    </div>
+                    <h6 class="mb-0 fw-bold">Admin Users</h6>
+                </div>
+                <div class="card-body">
+                    <p>The <strong>Admin Users</strong> module manages the accounts that can log in to the Payroll System. Each admin user is assigned one or more roles that determine what they can access.</p>
+                    <h6 class="fw-semibold mt-3 mb-2">Fields</h6>
+                    <div class="table-responsive mb-3">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th>Field</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="fw-semibold">Username</td><td>Must be unique. Used to log in.</td></tr>
+                                <tr><td class="fw-semibold">Password</td><td>Set on creation; change later via <em>Change Password</em>.</td></tr>
+                                <tr><td class="fw-semibold">Roles</td><td>One or more active roles assigned to this user. Permissions are the union of all assigned roles.</td></tr>
+                                <tr><td class="fw-semibold">Active</td><td>Inactive users cannot log in.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <h6 class="fw-semibold mb-2">Actions</h6>
+                    <ul class="mb-0">
+                        <li><strong>Edit</strong> — update username, active status, and role assignments.</li>
+                        <li><strong>Change Password</strong> — reset the user's password without editing other details.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        @* Roles & Permissions *@
+        <section id="roles" class="mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <div class="guide-section-icon" style="background:linear-gradient(135deg,#20c997,#0d6e4f)">
+                        <i class="bi bi-tags-fill"></i>
+                    </div>
+                    <h6 class="mb-0 fw-bold">Roles &amp; Permissions</h6>
+                </div>
+                <div class="card-body">
+                    <p>A <strong>Role</strong> is a named set of module permissions. Assign roles to admin users to control what they can see and do.</p>
+
+                    <h6 class="fw-semibold mt-3 mb-2">Creating a role</h6>
+                    <ol class="mb-3">
+                        <li class="mb-1">Go to <strong>Administration → Roles</strong> and click <strong>Add New</strong>.</li>
+                        <li class="mb-1">On the <strong>Details</strong> tab — enter a name, optional description, and set it active.</li>
+                        <li class="mb-1">Switch to the <strong>Permissions</strong> tab — tick the modules this role should be able to access.</li>
+                        <li class="mb-1">Click <strong>Save Role</strong>. Both details and permissions are saved in one step.</li>
+                    </ol>
+
+                    <h6 class="fw-semibold mb-2">Editing permissions</h6>
+                    <p class="mb-3">Open any role and switch to the <strong>Permissions</strong> tab. The badge on the tab shows how many modules are currently granted. Toggle the module cards and click <strong>Save Changes</strong>.</p>
+
+                    <h6 class="fw-semibold mb-2">Available modules</h6>
+                    <div class="table-responsive mb-3">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th>Module</th><th>Domain</th><th>What it covers</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="fw-semibold">Dashboard</td><td>—</td><td>Home page with stats and module shortcuts.</td></tr>
+                                <tr><td class="fw-semibold">Payment Schemes</td><td>Payroll</td><td>Create and edit salary templates.</td></tr>
+                                <tr><td class="fw-semibold">Employees</td><td>Payroll</td><td>Manage employee profiles.</td></tr>
+                                <tr><td class="fw-semibold">Payroll</td><td>Payroll</td><td>Create and edit individual payroll records.</td></tr>
+                                <tr><td class="fw-semibold">Batch Payroll</td><td>Payroll</td><td>Create and manage monthly payroll batches; submit for approval; recall, complete, or cancel.</td></tr>
+                                <tr><td class="fw-semibold">Batch Payroll Approval</td><td>Payroll</td><td>Review submitted batches and approve or reject them. Cannot approve own submissions.</td></tr>
+                                <tr><td class="fw-semibold">Payslip</td><td>Payroll</td><td>View and print payslips.</td></tr>
+                                <tr><td class="fw-semibold">Admin Users</td><td>Administration</td><td>Manage administrator accounts.</td></tr>
+                                <tr><td class="fw-semibold">Roles</td><td>Administration</td><td>Manage roles and their module permissions.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="alert alert-warning d-flex gap-2 mb-0 py-2">
+                        <i class="bi bi-exclamation-triangle-fill mt-1 flex-shrink-0"></i>
+                        <div>
+                            If a user loses access to every module (e.g. their role is deactivated), they will see an <strong>Access Denied</strong> page with a <strong>Sign Out</strong> button. Contact a Super Admin to restore access.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        @* ── REFERENCE ── *@
+        <div class="d-flex align-items-center gap-2 mb-3 mt-2">
+            <div class="guide-section-icon" style="background:linear-gradient(135deg,#6c757d,#343a40)">
+                <i class="bi bi-book-fill"></i>
+            </div>
+            <h6 class="mb-0 fw-bold text-uppercase" style="letter-spacing:1px">Reference</h6>
+        </div>
+
+        @* Dashboard *@
+        <section id="dashboard" class="mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <div class="guide-section-icon" style="background:linear-gradient(135deg,#198754,#14532d)">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+                    <h6 class="mb-0 fw-bold">Dashboard</h6>
+                </div>
+                <div class="card-body">
+                    <p>The dashboard gives a real-time snapshot. It is personalised — only the modules and stat cards the logged-in user has access to are shown.</p>
+
+                    <h6 class="fw-semibold mb-2">Stat cards</h6>
+                    <div class="table-responsive mb-3">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th>Card</th><th>What it shows</th><th>Required module</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="fw-semibold">Active Employees</td><td>Count of active employees and active schemes.</td><td>Employees</td></tr>
+                                <tr><td class="fw-semibold">Net Payout</td><td>Total net salary for the current calendar month.</td><td>Payroll</td></tr>
+                                <tr><td class="fw-semibold">Draft Payrolls</td><td>Payroll records awaiting approval.</td><td>Payroll</td></tr>
+                                <tr><td class="fw-semibold">Pending Batches</td><td>Batches in Draft or Processing status.</td><td>Batch Payroll</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h6 class="fw-semibold mb-2">Module shortcuts</h6>
+                    <p class="mb-0">Below the stat cards, module shortcuts are grouped by domain (<strong>Payroll</strong> and <strong>Administration</strong>). A domain heading only appears when the user has access to at least one module in that domain. Clicking a card navigates directly to that module's list.</p>
+                </div>
+            </div>
+        </section>
+
+        @* Recommended Workflow *@
+        <section id="workflow" class="mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <div class="guide-section-icon" style="background:linear-gradient(135deg,#fd7e14,#c2410c)">
+                        <i class="bi bi-diagram-3-fill"></i>
+                    </div>
+                    <h6 class="mb-0 fw-bold">Recommended Workflow</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">Follow this order when setting up the system for the first time.</p>
+                    <div class="row g-3">
+
+                        <div class="col-12">
+                            <div class="d-flex gap-3 align-items-start">
+                                <div class="workflow-step-num">1</div>
+                                <div>
+                                    <div class="fw-semibold">Create Roles &amp; Permissions</div>
+                                    <div class="text-muted small">Go to <em>Administration → Roles</em>. Create a role (e.g. "Payroll Officer"), switch to its Permissions tab, and tick the modules that role needs.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex gap-3 align-items-start">
+                                <div class="workflow-step-num">2</div>
+                                <div>
+                                    <div class="fw-semibold">Create Admin Users</div>
+                                    <div class="text-muted small">Go to <em>Administration → Admin Users</em>. Add each administrator and assign their role(s). Their navigation and dashboard will reflect only the permitted modules.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex gap-3 align-items-start">
+                                <div class="workflow-step-num">3</div>
+                                <div>
+                                    <div class="fw-semibold">Set up Payment Schemes</div>
+                                    <div class="text-muted small">Create one scheme per job grade or salary tier before adding any employees.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex gap-3 align-items-start">
+                                <div class="workflow-step-num">4</div>
+                                <div>
+                                    <div class="fw-semibold">Register Employees</div>
+                                    <div class="text-muted small">Add each employee and assign their payment scheme.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex gap-3 align-items-start">
+                                <div class="workflow-step-num">5</div>
+                                <div>
+                                    <div class="fw-semibold">Create a Payroll Batch each month</div>
+                                    <div class="text-muted small">Go to <em>Payroll → Batch Payroll → New Batch</em>. Select the year and month, then click <strong>Draft</strong> to save for editing, or <strong>Submit</strong> to send directly for approval. Payroll records are generated automatically for every active employee.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex gap-3 align-items-start">
+                                <div class="workflow-step-num">6</div>
+                                <div>
+                                    <div class="fw-semibold">Adjust OT hours and deductions (Draft only)</div>
+                                    <div class="text-muted small">Open the batch, go to the <em>Payroll Records</em> tab, enter overtime hours and deductions per employee, then click <em>Save Payroll Records</em>. The tab is read-only once the batch is Submitted or in Processing.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex gap-3 align-items-start">
+                                <div class="workflow-step-num">7</div>
+                                <div>
+                                    <div class="fw-semibold">Submit for approval</div>
+                                    <div class="text-muted small">Click <strong>Submit for Approval</strong> on the batch Edit page. The batch is locked and an approver with <em>Batch Payroll Approval</em> access is notified. You can <strong>Recall</strong> the batch at any time before a decision is made.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex gap-3 align-items-start">
+                                <div class="workflow-step-num">8</div>
+                                <div>
+                                    <div class="fw-semibold">Approver reviews the batch</div>
+                                    <div class="text-muted small">An approver opens <em>Payroll → Batch Approval</em>, clicks <strong>Review</strong>, and either <strong>Approves</strong> (→ Processing, payrolls set to Approved) or <strong>Rejects</strong> with a reason (→ Rejected, submitter notified). The submitter cannot approve their own batch.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex gap-3 align-items-start">
+                                <div class="workflow-step-num">9</div>
+                                <div>
+                                    <div class="fw-semibold">Complete or cancel the processing batch</div>
+                                    <div class="text-muted small">Once approved (Processing), open the batch and click <strong>Complete</strong> to mark all payroll records as Paid and finalise the batch, or <strong>Cancel Batch</strong> to void it and return payroll records to Draft.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex gap-3 align-items-start">
+                                <div class="workflow-step-num">10</div>
+                                <div>
+                                    <div class="fw-semibold">Print Payslips</div>
+                                    <div class="text-muted small">Use the <i class="bi bi-printer-fill"></i> icon on any payroll row, or from the employee's Payroll History tab.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/user-guide.js"></script>
+}

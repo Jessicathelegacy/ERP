@@ -1,0 +1,121 @@
+@using Payroll.Models
+@model RoleFormViewModel
+@{
+    ViewData["Title"] = "Add Role";
+}
+
+@section PageActions {
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm px-3">
+        <i class="bi bi-arrow-left me-1"></i>Back to Roles
+    </a>
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7 col-md-9">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex align-items-center">
+                <i class="bi bi-tag-fill me-2 text-primary"></i>
+                <span class="fw-semibold">New Role</span>
+            </div>
+
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+
+                @* ── Tabs ── *@
+                <div class="card-header border-top-0 pt-0 pb-0">
+                    <ul class="nav nav-tabs card-header-tabs" id="roleTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="tab-details" data-bs-toggle="tab"
+                                    data-bs-target="#pane-details" type="button" role="tab">
+                                <i class="bi bi-info-circle me-1"></i>Details
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tab-permissions" data-bs-toggle="tab"
+                                    data-bs-target="#pane-permissions" type="button" role="tab">
+                                <i class="bi bi-shield-check me-1"></i>Permissions
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="tab-content">
+
+                        @* ── Details tab ── *@
+                        <div class="tab-pane fade show active" id="pane-details" role="tabpanel">
+
+                            <div class="mb-3">
+                                <label asp-for="Name" class="form-label fw-semibold">
+                                    Role Name <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Name" class="form-control" placeholder="e.g. Payroll Manager" />
+                                <span asp-validation-for="Name" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                                <textarea asp-for="Description" class="form-control" rows="3"
+                                          placeholder="Brief description of this role's access…"></textarea>
+                                <span asp-validation-for="Description" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-2">
+                                <div class="form-check form-switch">
+                                    <input asp-for="IsActive" class="form-check-input" role="switch" />
+                                    <label asp-for="IsActive" class="form-check-label fw-semibold">Active</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        @* ── Permissions tab ── *@
+                        <div class="tab-pane fade" id="pane-permissions" role="tabpanel">
+                            <p class="text-muted small mb-3">Select the modules this role can access.</p>
+
+                            <div class="row g-2">
+                                @foreach (var (key, displayName, icon) in Modules.All)
+                                {
+                                    <div class="col-12 col-sm-6">
+                                        <label class="d-flex align-items-center gap-3 p-3 border rounded-3 cursor-pointer module-card"
+                                               for="mod_@key">
+                                            <input class="form-check-input flex-shrink-0 mt-0"
+                                                   type="checkbox"
+                                                   name="GrantedModules"
+                                                   value="@key"
+                                                   id="mod_@key"
+                                                   onchange="this.closest('.module-card').classList.toggle('module-card--on', this.checked)" />
+                                            <span>
+                                                <i class="bi @icon text-primary me-1"></i>
+                                                <span class="fw-semibold">@displayName</span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="card-footer bg-transparent d-flex gap-2">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-check-lg me-1"></i>Save Role
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-x-lg me-1"></i>Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<style>
+    .module-card { cursor: pointer; transition: background .15s, border-color .15s; }
+    .module-card:hover { background: var(--bs-primary-bg-subtle); }
+    .module-card--on { background: var(--bs-primary-bg-subtle); border-color: var(--bs-primary) !important; }
+</style>

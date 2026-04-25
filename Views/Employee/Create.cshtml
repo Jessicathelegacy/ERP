@@ -1,0 +1,72 @@
+@model Employee
+@{
+    ViewData["Title"] = "Add Employee";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex align-items-center">
+                <i class="bi bi-person-plus-fill me-2 text-primary"></i>
+                <span class="fw-semibold">New Employee</span>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                        <input asp-for="Name" class="form-control" placeholder="e.g. John Smith" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
+                        <input asp-for="Email" type="email" class="form-control" placeholder="e.g. john@example.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Phone" class="form-label fw-semibold">Phone</label>
+                        <input asp-for="Phone" class="form-control" placeholder="e.g. +1 555 000 0000" />
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PaymentSchemeId" class="form-label fw-semibold">Payment Scheme <span class="text-danger">*</span></label>
+                        <select asp-for="PaymentSchemeId" asp-items="ViewBag.PaymentSchemes" class="form-select">
+                            <option value="">— Select a scheme —</option>
+                        </select>
+                        <span asp-validation-for="PaymentSchemeId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="JoinDate" class="form-label fw-semibold">Join Date <span class="text-danger">*</span></label>
+                        <input asp-for="JoinDate" type="date" class="form-control" />
+                        <span asp-validation-for="JoinDate" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            <input asp-for="IsActive" class="form-check-input" role="switch" />
+                            <label asp-for="IsActive" class="form-check-label fw-semibold">Active</label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-lg me-1"></i>Save Employee
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-x-lg me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

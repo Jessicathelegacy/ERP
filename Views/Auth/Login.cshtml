@@ -1,0 +1,76 @@
+@model LoginViewModel
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Sign In";
+}
+
+<div class="auth-wrapper">
+    <div class="auth-card card shadow-lg">
+        <div class="card-body p-5">
+
+            <div class="text-center mb-4">
+                <div class="auth-logo-circle mx-auto mb-3">
+                    <i class="bi bi-cash-coin"></i>
+                </div>
+                <h4 class="fw-bold mb-1">Payroll System</h4>
+                <p class="text-muted small mb-0">Sign in to your admin account</p>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger d-flex align-items-center py-2 mb-4" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2 flex-shrink-0"></i>
+                    <div>
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <span>@error.ErrorMessage</span>
+                        }
+                    </div>
+                </div>
+            }
+
+            <form method="post" asp-action="Login" asp-controller="Auth" novalidate>
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label asp-for="Username" class="form-label fw-semibold small text-uppercase text-muted ls-1">Username</label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="bi bi-person text-muted"></i>
+                        </span>
+                        <input asp-for="Username" class="form-control border-start-0 bg-light ps-0"
+                               placeholder="Enter your username" autocomplete="username" />
+                    </div>
+                    <span asp-validation-for="Username" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Password" class="form-label fw-semibold small text-uppercase text-muted ls-1">Password</label>
+                    <div class="input-group input-group-lg" id="passwordGroup">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="bi bi-lock text-muted"></i>
+                        </span>
+                        <input asp-for="Password" class="form-control border-start-0 bg-light ps-0 border-end-0"
+                               placeholder="Enter your password" autocomplete="current-password" id="passwordInput" />
+                        <button class="input-group-text bg-light border-start-0" type="button" id="togglePassword" tabindex="-1">
+                            <i class="bi bi-eye text-muted" id="toggleIcon"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <p class="text-center text-white-50 small mt-4">
+        &copy; @DateTime.Now.Year Payroll System. All rights reserved.
+    </p>
+</div>
+
+@section Scripts {
+    <script src="~/js/auth-login.js"></script>
+}

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Payroll System</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Payroll.styles.css" asp-append-version="true" />
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark app-navbar shadow-sm">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold d-flex align-items-center gap-2" asp-controller="Home" asp-action="Index">
+                <span class="navbar-brand-icon"><i class="bi bi-cash-coin"></i></span>
+                Payroll System
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                    aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    @await Component.InvokeAsync("NavMenu")
+                </ul>
+                <ul class="navbar-nav ms-auto align-items-center gap-1">
+
+                    @* ── Notification bell ── *@
+                    <li class="nav-item">
+                        <div class="dropdown">
+                            <button class="btn notif-bell-btn position-relative" id="notifBellBtn"
+                                    type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                    data-bs-auto-close="outside">
+                                <i class="bi bi-bell-fill text-white" style="font-size:1.15rem"></i>
+                                <span class="notif-badge" id="notifBadge" style="display:none">0</span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end notif-panel p-0 shadow" id="notifPanel">
+                                <div class="notif-panel-header d-flex align-items-center justify-content-between px-3 py-2">
+                                    <span class="fw-semibold text-dark" style="font-size:.9rem">Notifications</span>
+                                    <button class="btn btn-link btn-sm text-muted p-0 text-decoration-none" style="font-size:.78rem"
+                                            onclick="notifMarkAllRead(event)">Mark all read</button>
+                                </div>
+                                <div id="notifList" class="notif-list">
+                                    <div id="notifEmpty" class="text-center text-muted py-4">
+                                        <i class="bi bi-bell-slash d-block mb-1" style="font-size:1.6rem;opacity:.4"></i>
+                                        <span style="font-size:.82rem">No notifications</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 px-3" href="#"
+                           role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="navbar-avatar">
+                                <i class="bi bi-person-fill"></i>
+                            </span>
+                            <span class="d-none d-sm-inline fw-semibold">@User.Identity?.Name</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-1">
+                            <li>
+                                <span class="dropdown-item-text text-muted small px-3 py-2">
+                                    <i class="bi bi-shield-check me-1 text-success"></i>Administrator
+                                </span>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <a class="dropdown-item text-danger py-2" asp-controller="Auth" asp-action="Logout">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Sign Out
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="app-content">
+        <div class="container-fluid px-4 py-4">
+            @if (ViewData["PageTitle"] != null)
+            {
+                <div class="page-header d-flex align-items-start justify-content-between mb-4">
+                    <div>
+                        <h5 class="page-title mb-0">@ViewData["PageTitle"]</h5>
+                        @if (ViewData["PageSubtitle"] != null)
+                        {
+                            <p class="text-muted small mb-0 mt-1">@ViewData["PageSubtitle"]</p>
+                        }
+                    </div>
+                    @if (IsSectionDefined("PageActions"))
+                    {
+                        <div class="ms-3">@RenderSection("PageActions", required: false)</div>
+                    }
+                </div>
+            }
+            <main role="main">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <footer class="app-footer border-top">
+        <div class="container-fluid px-4">
+            <span class="text-muted small">&copy; @DateTime.Now.Year Payroll System. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <script>
+        (function () {
+            'use strict';
+
+            const POLL_MS = 30000;
+            let panelOpen = false;
+
+            // ── Bell dropdown lifecycle ──────────────────────────────────────
+            const bellBtn = document.getElementById('notifBellBtn');
+            if (bellBtn) {
+                bellBtn.addEventListener('show.bs.dropdown', () => {
+                    panelOpen = true;
+                    fetchNotifications(true);
+                });
+                bellBtn.addEventListener('hide.bs.dropdown', () => { panelOpen = false; });
+            }
+
+            // ── Fetch & render ───────────────────────────────────────────────
+            async function fetchNotifications(renderItems) {
+                try {
+                    const res = await fetch('/Notifications/Dropdown', { credentials: 'same-origin' });
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    updateBadge(data.count);
+                    if (renderItems) renderList(data.items);
+                } catch (_) {}
+            }
+
+            function updateBadge(count) {
+                const badge = document.getElementById('notifBadge');
+                if (!badge) return;
+                if (count > 0) {
+                    badge.textContent = count > 99 ? '99+' : count;
+                    badge.style.display = '';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+
+            function renderList(items) {
+                const list  = document.getElementById('notifList');
+                const empty = document.getElementById('notifEmpty');
+                if (!list || !empty) return;
+
+                if (!items || items.length === 0) {
+                    empty.style.display = '';
+                    list.querySelectorAll('.notif-item').forEach(el => el.remove());
+                    return;
+                }
+                empty.style.display = 'none';
+
+                // rebuild items
+                list.querySelectorAll('.notif-item, .notif-divider').forEach(el => el.remove());
+
+                items.forEach((n, idx) => {
+                    if (idx > 0) {
+                        const hr = document.createElement('hr');
+                        hr.className = 'notif-divider my-0';
+                        list.appendChild(hr);
+                    }
+
+                    const a = document.createElement('a');
+                    a.className = 'notif-item d-flex align-items-start gap-2 px-3 py-2 text-decoration-none' + (n.isRead ? '' : ' notif-unread');
+                    a.href = n.linkUrl || '#';
+                    a.dataset.id = n.id;
+                    a.innerHTML = `
+                        <span class="notif-icon notif-icon--${esc(n.type)} flex-shrink-0 mt-1">
+                            <i class="bi ${typeIcon(n.type)}"></i>
+                        </span>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <div class="notif-title text-truncate">${esc(n.title)}</div>
+                            <div class="notif-msg">${esc(n.message)}</div>
+                            <div class="notif-time">${esc(n.timeAgo)}</div>
+                        </div>
+                        ${!n.isRead ? '<span class="notif-dot flex-shrink-0 mt-2"></span>' : ''}
+                    `;
+                    a.addEventListener('click', () => markRead(n.id, a));
+                    list.appendChild(a);
+                });
+            }
+
+            // ── Mark read ────────────────────────────────────────────────────
+            async function markRead(id, el) {
+                try {
+                    await fetch(`/Notifications/MarkRead?id=${id}`, { method: 'POST', credentials: 'same-origin' });
+                    if (el) {
+                        el.classList.remove('notif-unread');
+                        const dot = el.querySelector('.notif-dot');
+                        if (dot) dot.remove();
+                    }
+                    // refresh badge silently
+                    fetchNotifications(false);
+                } catch (_) {}
+            }
+
+            window.notifMarkAllRead = async function (e) {
+                e.stopPropagation();
+                try {
+                    await fetch('/Notifications/MarkAllRead', { method: 'POST', credentials: 'same-origin' });
+                    fetchNotifications(true);
+                } catch (_) {}
+            };
+
+            // ── Helpers ──────────────────────────────────────────────────────
+            function typeIcon(type) {
+                return type === 'success' ? 'bi-check-circle-fill'
+                     : type === 'warning' ? 'bi-exclamation-triangle-fill'
+                     : type === 'danger'  ? 'bi-x-circle-fill'
+                     : 'bi-info-circle-fill';
+            }
+
+            function esc(str) {
+                const d = document.createElement('div');
+                d.appendChild(document.createTextNode(str ?? ''));
+                return d.innerHTML;
+            }
+
+            // ── Polling ──────────────────────────────────────────────────────
+            function poll() {
+                fetchNotifications(panelOpen);
+                setTimeout(poll, POLL_MS);
+            }
+
+            // initial silent badge load + start polling
+            fetchNotifications(false);
+            setTimeout(poll, POLL_MS);
+        })();
+        </script>
+    }
+</body>
+</html>

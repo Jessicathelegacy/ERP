@@ -1,0 +1,142 @@
+@model PayrollFormViewModel
+@{
+    ViewData["Title"] = "Add Payroll";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex align-items-center">
+                <i class="bi bi-plus-circle-fill me-2 text-primary"></i>
+                <span class="fw-semibold">New Payroll Record</span>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+
+                    @* Employee *@
+                    <div class="mb-3">
+                        <label asp-for="EmployeeId" class="form-label fw-semibold">Employee <span class="text-danger">*</span></label>
+                        <select asp-for="EmployeeId" asp-items="ViewBag.Employees" id="EmployeeId" class="form-select">
+                            <option value="0">— Select an employee —</option>
+                        </select>
+                        <span asp-validation-for="EmployeeId" class="text-danger small"></span>
+                    </div>
+
+                    @* Pay Period *@
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="PayPeriodStart" class="form-label fw-semibold">Pay Period Start <span class="text-danger">*</span></label>
+                            <input asp-for="PayPeriodStart" type="date" class="form-control" />
+                            <span asp-validation-for="PayPeriodStart" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PayPeriodEnd" class="form-label fw-semibold">Pay Period End <span class="text-danger">*</span></label>
+                            <input asp-for="PayPeriodEnd" type="date" class="form-control" />
+                            <span asp-validation-for="PayPeriodEnd" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    @* Salary Components *@
+                    <div class="card bg-light border-0 mb-3">
+                        <div class="card-body pb-2">
+                            <p class="fw-semibold text-muted small text-uppercase mb-3">
+                                <i class="bi bi-cash-coin me-1"></i>Salary Components
+                            </p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label asp-for="BasicSalary" class="form-label fw-semibold">Basic Salary</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text text-muted">$</span>
+                                        <input asp-for="BasicSalary" id="BasicSalary" type="number" step="0.01" min="0" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="Allowances" class="form-label fw-semibold">Allowances</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text text-muted">$</span>
+                                        <input asp-for="Allowances" id="Allowances" type="number" step="0.01" min="0" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="OvertimeHours" class="form-label fw-semibold">Overtime Hours</label>
+                                    <div class="input-group">
+                                        <input asp-for="OvertimeHours" id="OvertimeHours" type="number" step="0.5" min="0" class="form-control" />
+                                        <span class="input-group-text text-muted">hrs</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="OvertimePay" class="form-label fw-semibold">Overtime Pay</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text text-muted">$</span>
+                                        <input asp-for="OvertimePay" id="OvertimePay" type="number" step="0.01" min="0" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="Deductions" class="form-label fw-semibold">Deductions</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text text-muted">$</span>
+                                        <input asp-for="Deductions" id="Deductions" type="number" step="0.01" min="0" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Summary *@
+                    <div class="card border-primary border-opacity-50 mb-3">
+                        <div class="card-body py-3">
+                            <p class="fw-semibold text-primary small text-uppercase mb-3">
+                                <i class="bi bi-calculator me-1"></i>Summary
+                            </p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label asp-for="GrossSalary" class="form-label fw-semibold">Gross Salary</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text text-muted">$</span>
+                                        <input asp-for="GrossSalary" id="GrossSalary" type="number" step="0.01" class="form-control fw-semibold" readonly />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="NetSalary" class="form-label fw-semibold">Net Salary</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-primary text-white">$</span>
+                                        <input asp-for="NetSalary" id="NetSalary" type="number" step="0.01" class="form-control fw-bold text-primary fs-5" readonly />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Status & Remarks *@
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Status" class="form-label fw-semibold">Status</label>
+                            <select asp-for="Status" asp-items="Html.GetEnumSelectList<PayrollStatus>()" class="form-select"></select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Remarks" class="form-label fw-semibold">Remarks</label>
+                        <textarea asp-for="Remarks" class="form-control" rows="2" placeholder="Optional notes..."></textarea>
+                        <span asp-validation-for="Remarks" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-lg me-1"></i>Save Payroll
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-x-lg me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/payroll-form.js"></script>
+}

@@ -1,0 +1,219 @@
+@model BatchApprovalReviewViewModel
+@{
+    ViewData["Title"] = "Review Batch";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+
+        @* Summary card *@
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span>
+                    <i class="bi bi-layers-fill me-2 text-primary"></i>
+                    <strong>@(new DateTime(Model.Batch.Year, Model.Batch.Month, 1).ToString("MMMM yyyy"))</strong> Payroll Batch
+                </span>
+                <span class="badge rounded-pill bg-warning-subtle text-warning px-3 py-2">
+                    <i class="bi bi-hourglass-split me-1"></i>Awaiting Approval
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3 col-sm-6">
+                        <div class="border rounded p-3 text-center">
+                            <div class="text-muted small mb-1">Employees</div>
+                            <div class="fw-bold fs-5">@Model.Batch.TotalEmployees</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="border rounded p-3 text-center">
+                            <div class="text-muted small mb-1">Total Gross</div>
+                            <div class="fw-bold fs-6">$@Model.Batch.TotalGrossSalary.ToString("N2")</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="border rounded p-3 text-center">
+                            <div class="text-muted small mb-1">Total Deductions</div>
+                            <div class="fw-bold fs-6 text-danger">$@Model.Batch.TotalDeductions.ToString("N2")</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="border rounded p-3 text-center border-primary">
+                            <div class="text-muted small mb-1">Total Net</div>
+                            <div class="fw-bold fs-5 text-primary">$@Model.Batch.TotalNetSalary.ToString("N2")</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-2 text-muted small">
+                    @if (!string.IsNullOrWhiteSpace(Model.Batch.Description))
+                    {
+                        <div class="col-md-6">
+                            <i class="bi bi-info-circle me-1"></i>@Model.Batch.Description
+                        </div>
+                    }
+                    <div class="col-md-6">
+                        <i class="bi bi-person-fill me-1"></i>
+                        Submitted by <strong class="text-dark">@(Model.SubmittedByUsername ?? "Unknown")</strong>
+                        @if (Model.Batch.SubmittedAt.HasValue)
+                        {
+                            <span> on @Model.Batch.SubmittedAt.Value.ToString("dd MMM yyyy HH:mm") UTC</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Payroll records *@
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="bi bi-receipt-cutoff me-2 text-primary"></i>Payroll Records
+                <span class="badge bg-primary-subtle text-primary ms-1">@Model.PayrollItems.Count</span>
+            </div>
+            @if (Model.PayrollItems.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4" style="width:40px">#</th>
+                                <th>Employee</th>
+                                <th class="text-end">Basic</th>
+                                <th class="text-end">Allowances</th>
+                                <th class="text-end">OT Hours</th>
+                                <th class="text-end">OT Pay</th>
+                                <th class="text-end">Gross</th>
+                                <th class="text-end">Deductions</th>
+                                <th class="text-end pe-4">Net Salary</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ int row = 1; }
+                            @foreach (var p in Model.PayrollItems)
+                            {
+                                <tr>
+                                    <td class="ps-4 text-muted small">@row</td>
+                                    <td class="fw-semibold">@p.EmployeeName</td>
+                                    <td class="text-end small">@p.BasicSalary.ToString("N2")</td>
+                                    <td class="text-end small">@p.Allowances.ToString("N2")</td>
+                                    <td class="text-end small">@p.OvertimeHours.ToString("F1") hrs</td>
+                                    <td class="text-end small">@p.OvertimePay.ToString("N2")</td>
+                                    <td class="text-end small">@p.GrossSalary.ToString("N2")</td>
+                                    <td class="text-end small text-danger">@p.Deductions.ToString("N2")</td>
+                                    <td class="text-end fw-semibold pe-4">@p.NetSalary.ToString("N2")</td>
+                                </tr>
+                                row++;
+                            }
+                        </tbody>
+                        <tfoot class="table-light fw-semibold">
+                            <tr>
+                                <td colspan="2" class="ps-4">Totals</td>
+                                <td class="text-end">@Model.PayrollItems.Sum(p => p.BasicSalary).ToString("N2")</td>
+                                <td class="text-end">@Model.PayrollItems.Sum(p => p.Allowances).ToString("N2")</td>
+                                <td></td>
+                                <td class="text-end">@Model.PayrollItems.Sum(p => p.OvertimePay).ToString("N2")</td>
+                                <td class="text-end">@Model.PayrollItems.Sum(p => p.GrossSalary).ToString("N2")</td>
+                                <td class="text-end text-danger">@Model.PayrollItems.Sum(p => p.Deductions).ToString("N2")</td>
+                                <td class="text-end text-primary pe-4">@Model.PayrollItems.Sum(p => p.NetSalary).ToString("N2")</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="card-body text-center text-muted py-4">No payroll records attached to this batch.</div>
+            }
+        </div>
+
+        @* Approve / Reject actions *@
+        <div class="card">
+            <div class="card-header fw-semibold">
+                <i class="bi bi-check2-square me-2 text-primary"></i>Approval Decision
+            </div>
+            <div class="card-body">
+
+                @if (Model.IsOwnSubmission)
+                {
+                    <div class="alert alert-warning d-flex align-items-center gap-2 mb-4" role="alert">
+                        <i class="bi bi-shield-exclamation fs-5"></i>
+                        <div>
+                            <strong>Action not permitted.</strong>
+                            You submitted this batch and cannot approve or reject your own submission.
+                            Another authorised approver must review it.
+                        </div>
+                    </div>
+                    <div class="row g-4 mb-3">
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100 bg-light text-center text-muted d-flex flex-column align-items-center justify-content-center" style="min-height:130px">
+                                <i class="bi bi-check-circle fs-2 mb-2 opacity-25"></i>
+                                <span class="small">Approve — not available</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100 bg-light text-center text-muted d-flex flex-column align-items-center justify-content-center" style="min-height:130px">
+                                <i class="bi bi-x-octagon fs-2 mb-2 opacity-25"></i>
+                                <span class="small">Reject — not available</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="row g-4 mb-3">
+
+                        @* Approve *@
+                        <div class="col-md-6">
+                            <div class="border border-success rounded p-3 h-100 d-flex flex-column">
+                                <h6 class="text-success mb-2"><i class="bi bi-check-circle-fill me-1"></i>Approve</h6>
+                                <p class="text-muted small mb-3 flex-grow-1">
+                                    Approving this batch will move it to <strong>Processing</strong> status and mark all payroll records as Approved.
+                                </p>
+                                <form asp-action="Approve" asp-route-id="@Model.Batch.Id" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-success w-100"
+                                            onclick="return confirm('Approve this payroll batch? This will set all payroll records to Approved.')">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Approve Batch
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        @* Reject *@
+                        <div class="col-md-6">
+                            <div class="border border-danger rounded p-3 h-100 d-flex flex-column">
+                                <h6 class="text-danger mb-2"><i class="bi bi-x-octagon-fill me-1"></i>Reject</h6>
+                                <p class="text-muted small mb-3">
+                                    Rejecting will return the batch to <strong>Draft</strong> status so the submitter can make corrections and resubmit.
+                                </p>
+                                <form asp-action="Reject" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="BatchId" value="@Model.Batch.Id" />
+                                    <div class="mb-2">
+                                        <textarea name="Reason" class="form-control form-control-sm" rows="3"
+                                                  placeholder="Provide a reason for rejection (required)..." maxlength="500" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-danger w-100">
+                                        <i class="bi bi-x-octagon-fill me-1"></i>Reject Batch
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                }
+
+                <div class="mt-1">
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-arrow-left me-1"></i>Back to Approvals
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

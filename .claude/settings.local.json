@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build *)",
+      "Bash(dotnet ef *)",
+      "Bash(del \"c:\\\\WorkingFolder\\\\Payroll\\\\Payroll\\\\Payroll\\\\Migrations\\\\20260425120000_AddPayrollBatchEvents.cs\")"
+    ]
+  }
+}

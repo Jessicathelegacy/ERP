@@ -1,0 +1,106 @@
+@using Payroll.Models
+@model HashSet<string>
+@{
+    var ctrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+
+    bool can(string module) => Model.Contains(module);
+
+    bool payrollActive = can(Modules.Payroll) || can(Modules.BatchPayroll) ||
+                         can(Modules.BatchPayrollApproval) || can(Modules.PaymentSchemes) || can(Modules.Payslip);
+    bool payrollDropActive = ctrl is "Payroll" or "PayrollBatch" or "PayrollBatchApproval" or "PaymentScheme" or "Payslip";
+
+    bool adminActive = can(Modules.AdminUsers) || can(Modules.Roles);
+    bool adminDropActive = ctrl is "AdminUser" or "Role";
+}
+
+@if (can(Modules.Dashboard))
+{
+    <li class="nav-item">
+        <a class="nav-link @(ctrl == "Home" ? "active" : "")"
+           asp-controller="Home" asp-action="Index">
+            <i class="bi bi-speedometer2 me-1"></i>Dashboard
+        </a>
+    </li>
+}
+
+@if (can(Modules.Employees))
+{
+    <li class="nav-item">
+        <a class="nav-link @(ctrl == "Employee" ? "active" : "")"
+           asp-controller="Employee" asp-action="Index">
+            <i class="bi bi-people-fill me-1"></i>Employees
+        </a>
+    </li>
+}
+
+@if (payrollActive)
+{
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle @(payrollDropActive ? "active" : "")" href="#"
+           role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-receipt-cutoff me-1"></i>Payroll
+        </a>
+        <ul class="dropdown-menu shadow border-0">
+            @if (can(Modules.BatchPayroll))
+            {
+                <li>
+                    <a class="dropdown-item" asp-controller="PayrollBatch" asp-action="Index">
+                        <i class="bi bi-layers-fill me-2 text-warning"></i>Batch Payroll
+                    </a>
+                </li>
+            }
+            @if (can(Modules.BatchPayrollApproval))
+            {
+                <li>
+                    <a class="dropdown-item" asp-controller="PayrollBatchApproval" asp-action="Index">
+                        <i class="bi bi-patch-check-fill me-2 text-success"></i>Batch Approval
+                    </a>
+                </li>
+            }
+            @if (can(Modules.Payroll))
+            {
+                <li>
+                    <a class="dropdown-item" asp-controller="Payroll" asp-action="Index">
+                        <i class="bi bi-receipt-cutoff me-2 text-success"></i>Payroll Records
+                    </a>
+                </li>
+            }
+            @if (can(Modules.PaymentSchemes))
+            {
+                <li>
+                    <a class="dropdown-item" asp-controller="PaymentScheme" asp-action="Index">
+                        <i class="bi bi-cash-stack me-2 text-primary"></i>Payment Schemes
+                    </a>
+                </li>
+            }
+        </ul>
+    </li>
+}
+
+@if (adminActive)
+{
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle @(adminDropActive ? "active" : "")" href="#"
+           role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-shield-lock-fill me-1"></i>Administration
+        </a>
+        <ul class="dropdown-menu shadow border-0">
+            @if (can(Modules.AdminUsers))
+            {
+                <li>
+                    <a class="dropdown-item" asp-controller="AdminUser" asp-action="Index">
+                        <i class="bi bi-person-badge-fill me-2 text-primary"></i>Admin Users
+                    </a>
+                </li>
+            }
+            @if (can(Modules.Roles))
+            {
+                <li>
+                    <a class="dropdown-item" asp-controller="Role" asp-action="Index">
+                        <i class="bi bi-tags-fill me-2 text-info"></i>Roles
+                    </a>
+                </li>
+            }
+        </ul>
+    </li>
+}

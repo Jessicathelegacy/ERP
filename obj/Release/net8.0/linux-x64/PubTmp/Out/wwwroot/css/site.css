@@ -1,0 +1,398 @@
+/* =========================================================
+   Base
+   ========================================================= */
+html {
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
+}
+
+@media (min-width: 768px) {
+    html { font-size: 16px; }
+}
+
+body {
+    background-color: #f0f2f5;
+    color: #212529;
+    margin-bottom: 0;
+}
+
+.btn:focus, .btn:active:focus,
+.form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+}
+
+/* =========================================================
+   Navbar
+   ========================================================= */
+.app-navbar {
+    background-color: #1e2a45;
+    min-height: 60px;
+}
+
+.app-navbar .navbar-brand {
+    font-size: 1.1rem;
+    letter-spacing: 0.3px;
+}
+
+.navbar-brand-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background-color: #4361ee;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.app-navbar .nav-link {
+    font-size: 0.9rem;
+    border-radius: 6px;
+    transition: background-color 0.15s ease;
+}
+
+.app-navbar .nav-link:hover,
+.app-navbar .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background-color: #4361ee;
+    border-radius: 50%;
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+/* =========================================================
+   Content & Footer
+   ========================================================= */
+.app-content {
+    min-height: calc(100vh - 60px - 48px);
+}
+
+.app-footer {
+    height: 48px;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+}
+
+/* =========================================================
+   Page Header
+   ========================================================= */
+.page-header {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 0.75rem;
+}
+
+.page-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #1e2a45;
+}
+
+/* =========================================================
+   Cards
+   ========================================================= */
+.card {
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 0.125rem 0.75rem rgba(0, 0, 0, 0.07);
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #f0f0f0;
+    border-radius: 0.75rem 0.75rem 0 0 !important;
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #1e2a45;
+}
+
+/* =========================================================
+   Dropdown
+   ========================================================= */
+.dropdown-menu {
+    border-radius: 0.6rem;
+    font-size: 0.9rem;
+    min-width: 180px;
+}
+
+.dropdown-item {
+    border-radius: 0.4rem;
+    margin: 0 0.25rem;
+    width: auto;
+}
+
+/* =========================================================
+   Auth Pages
+   ========================================================= */
+.auth-body {
+    background: linear-gradient(135deg, #1e2a45 0%, #16213e 55%, #0f3460 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-wrapper {
+    width: 100%;
+    max-width: 440px;
+    padding: 1rem;
+}
+
+.auth-card {
+    border-radius: 1rem !important;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.35) !important;
+}
+
+.auth-logo-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 68px;
+    height: 68px;
+    background: linear-gradient(135deg, #4361ee, #3a0ca3);
+    border-radius: 18px;
+    font-size: 1.75rem;
+    color: #fff;
+}
+
+.auth-body .form-control,
+.auth-body .input-group-text {
+    border-color: #e9ecef;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.auth-body .form-control:focus {
+    border-color: #4361ee;
+    background-color: #fff !important;
+}
+
+.auth-body .input-group:focus-within .input-group-text {
+    border-color: #4361ee;
+    background-color: #fff;
+}
+
+.auth-body .btn-primary {
+    background: linear-gradient(135deg, #4361ee, #3a0ca3);
+    border: none;
+    letter-spacing: 0.3px;
+    transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.auth-body .btn-primary:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+}
+
+.ls-1 { letter-spacing: 0.05em; }
+
+/* =========================================================
+   Dashboard Cards
+   ========================================================= */
+.dashboard-card {
+    border-radius: 1rem !important;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    cursor: pointer;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.12) !important;
+}
+
+.dashboard-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    font-size: 2rem;
+    color: #fff;
+}
+
+.dashboard-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e2a45;
+    margin-bottom: 0.25rem;
+}
+
+.dashboard-card-sub {
+    font-size: 0.82rem;
+}
+
+/* =========================================================
+   Empty State
+   ========================================================= */
+.empty-state-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background-color: #f0f2f5;
+    border-radius: 16px;
+    font-size: 1.75rem;
+    color: #adb5bd;
+}
+
+/* =========================================================
+   Table
+   ========================================================= */
+.table thead th {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6c757d;
+    border-bottom: 1px solid #f0f0f0;
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* =========================================================
+   Stat Cards (Dashboard summary)
+   ========================================================= */
+.stat-card { border-radius: 0.75rem; overflow: hidden; position: relative; transition: transform .15s ease, box-shadow .15s ease; }
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,.12) !important; }
+.stat-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #fff; flex-shrink: 0; }
+.stat-value { font-size: 1.6rem; font-weight: 800; color: #1e2a45; line-height: 1.1; }
+.stat-label { font-size: .8rem; font-weight: 600; color: #495057; margin-top: 2px; }
+.stat-sub { font-size: .72rem; color: #adb5bd; margin-top: 1px; }
+.stat-accent { height: 4px; width: 100%; }
+
+/* =========================================================
+   Notification Bell & Panel
+   ========================================================= */
+.notif-bell-btn {
+    background: transparent;
+    border: none;
+    padding: 6px 8px;
+    border-radius: 8px;
+    transition: background .15s ease;
+    line-height: 1;
+}
+.notif-bell-btn:hover,
+.notif-bell-btn:focus {
+    background: rgba(255,255,255,.12);
+    outline: none;
+    box-shadow: none;
+}
+
+.notif-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    background: #dc3545;
+    color: #fff;
+    font-size: .65rem;
+    font-weight: 700;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.notif-panel {
+    width: 360px;
+    max-width: 95vw;
+    border-radius: .75rem !important;
+    overflow: hidden;
+}
+
+.notif-panel-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.notif-list {
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+.notif-item {
+    color: #212529;
+    transition: background .12s ease;
+}
+.notif-item:hover {
+    background: #f8f9fa;
+    color: #212529;
+}
+.notif-item.notif-unread {
+    background: #eff6ff;
+}
+.notif-item.notif-unread:hover {
+    background: #dbeafe;
+}
+
+.notif-title {
+    font-size: .82rem;
+    font-weight: 600;
+    color: #1e2a45;
+}
+.notif-msg {
+    font-size: .76rem;
+    color: #6c757d;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-top: 1px;
+}
+.notif-time {
+    font-size: .7rem;
+    color: #adb5bd;
+    margin-top: 2px;
+}
+
+.notif-divider {
+    border-color: #f0f0f0;
+}
+
+.notif-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4361ee;
+    flex-shrink: 0;
+}
+
+/* Notification type icons */
+.notif-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .9rem;
+    flex-shrink: 0;
+}
+.notif-icon--info    { background: #e0e7ff; color: #4361ee; }
+.notif-icon--success { background: #d1fae5; color: #059669; }
+.notif-icon--warning { background: #fef3c7; color: #d97706; }
+.notif-icon--danger  { background: #fee2e2; color: #dc2626; }
+
+/* =========================================================
+   User Guide
+   ========================================================= */
+.guide-section-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: #fff; flex-shrink: 0; }
+.workflow-step-num { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#4361ee,#3a0ca3); color: #fff; font-weight: 700; font-size: .9rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }

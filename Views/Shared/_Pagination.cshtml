@@ -1,0 +1,80 @@
+@{
+    int page       = ViewBag.Page       ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int totalCount = ViewBag.TotalCount ?? 0;
+    int pageSize   = ViewBag.PageSize   ?? 10;
+    int startRow   = totalCount == 0 ? 0 : (page - 1) * pageSize + 1;
+    int endRow     = Math.Min(page * pageSize, totalCount);
+
+    // Preserve all existing query params except "page"
+    var otherParams = Context.Request.Query
+        .Where(kv => !kv.Key.Equals("page", StringComparison.OrdinalIgnoreCase))
+        .SelectMany(kv => kv.Value.Select(v => $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(v ?? "")}"));
+    var baseQuery = string.Join("&", otherParams);
+    Func<int, string> pageUrl = p => string.IsNullOrEmpty(baseQuery) ? $"?page={p}" : $"?{baseQuery}&page={p}";
+}
+
+@if (totalPages > 1 || totalCount > 0)
+{
+    <div class="d-flex align-items-center justify-content-between px-4 py-3 border-top">
+        <span class="text-muted small">
+            @if (totalCount == 0)
+            {
+                <span>No records found</span>
+            }
+            else
+            {
+                <span>Showing <strong>@startRow</strong>–<strong>@endRow</strong> of <strong>@totalCount</strong> records</span>
+            }
+        </span>
+
+        @if (totalPages > 1)
+        {
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(page <= 1 ? "disabled" : "")">
+                        <a class="page-link" href="@pageUrl(page - 1)" aria-label="Previous">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    @{
+                        int rangeStart = Math.Max(1, page - 2);
+                        int rangeEnd   = Math.Min(totalPages, page + 2);
+
+                        if (rangeStart > 1)
+                        {
+                            <li class="page-item"><a class="page-link" href="@pageUrl(1)">1</a></li>
+                            if (rangeStart > 2)
+                            {
+                                <li class="page-item disabled"><span class="page-link">…</span></li>
+                            }
+                        }
+
+                        for (int i = rangeStart; i <= rangeEnd; i++)
+                        {
+                            <li class="page-item @(i == page ? "active" : "")">
+                                <a class="page-link" href="@pageUrl(i)">@i</a>
+                            </li>
+                        }
+
+                        if (rangeEnd < totalPages)
+                        {
+                            if (rangeEnd < totalPages - 1)
+                            {
+                                <li class="page-item disabled"><span class="page-link">…</span></li>
+                            }
+                            <li class="page-item"><a class="page-link" href="@pageUrl(totalPages)">@totalPages</a></li>
+                        }
+                    }
+
+                    <li class="page-item @(page >= totalPages ? "disabled" : "")">
+                        <a class="page-link" href="@pageUrl(page + 1)" aria-label="Next">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </div>
+}

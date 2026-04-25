@@ -1,0 +1,74 @@
+@model PaymentScheme
+@{
+    ViewData["Title"] = "Edit Payment Scheme";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex align-items-center">
+                <i class="bi bi-pencil-fill me-2 text-primary"></i>
+                <span class="fw-semibold">Edit Payment Scheme</span>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label fw-semibold">Scheme Name <span class="text-danger">*</span></label>
+                        <input asp-for="Name" class="form-control" placeholder="e.g. Standard Monthly" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="BasicSalary" class="form-label fw-semibold">Basic Salary <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text text-muted">$</span>
+                            <input asp-for="BasicSalary" type="number" step="0.01" min="0" class="form-control" placeholder="0.00" />
+                        </div>
+                        <span asp-validation-for="BasicSalary" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="OvertimeRatePerHour" class="form-label fw-semibold">Overtime Rate / Hour <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text text-muted">$</span>
+                            <input asp-for="OvertimeRatePerHour" type="number" step="0.01" min="0" class="form-control" placeholder="0.00" />
+                        </div>
+                        <span asp-validation-for="OvertimeRatePerHour" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="AllowanceAmount" class="form-label fw-semibold">Allowance Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text text-muted">$</span>
+                            <input asp-for="AllowanceAmount" type="number" step="0.01" min="0" class="form-control" placeholder="0.00" />
+                        </div>
+                        <span asp-validation-for="AllowanceAmount" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            <input asp-for="IsActive" class="form-check-input" role="switch" />
+                            <label asp-for="IsActive" class="form-check-label fw-semibold">Active</label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-lg me-1"></i>Save Changes
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-x-lg me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
